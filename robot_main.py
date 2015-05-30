@@ -14,10 +14,8 @@ right_motor = Motor(brick, PORT_C)
 
 touch_sensor    = Touch(brick, PORT_1)
 compass_sensor  = Compass(brick, PORT_2, True)
-color_sensor    = Color20(brick, PORT_3)
+#color_sensor    = Color20(brick, PORT_3)
 ultra_sensor    = Ultrasonic(brick, PORT_4, True)
-
-revolution = get_revolution()
 
 # Function face_north makes the robot face north.
 def face_north():
@@ -29,7 +27,7 @@ def face_north():
 # facing forward. Then it returns True if there's nothing near 50 cm.
 # Otherwise it returns False.
 def front_is_clear():
-    global ultra_sensor
+    global ultra_motor, ultra_sensor
     face_front()
 
     if ultra_sensor.get_distance() > 50:
@@ -47,12 +45,14 @@ def right_is_clear():
     for i in range(3):
         tacho = ultra_motor.get_tacho()
         if tacho.rotation_count < 0:
-            ultra_motor.turn(75, abs(tacho.rotation_count) + 90)
+            ultra_motor.turn(70, abs(tacho.rotation_count) + 90)
         elif tacho.rotation_count < 90:
-            ultra_motor.turn(75, 90 - tacho.rotation_count)
+            ultra_motor.turn(70, 90 - tacho.rotation_count)
         else:
-            ultra_motor.turn(-75, tacho.rotation_count - 90)
+            ultra_motor.turn(-70, tacho.rotation_count - 90)
 
+    
+    
     if ultra_sensor.get_distance() > 50:
         return True
     else:
@@ -68,9 +68,9 @@ def left_is_clear():
     for i in range(3):
         tacho = ultra_motor.get_tacho()
         if tacho.rotation_count < -90:
-            ultra_motor.turn(75, -90 - tacho.rotation_count)
+            ultra_motor.turn(70, -90 - tacho.rotation_count)
         else:
-            ultra_motor.turn(-75, tacho.rotation_count + 90)
+            ultra_motor.turn(-70, tacho.rotation_count + 90)
 
     if ultra_sensor.get_distance() > 50:
         return True
@@ -83,9 +83,9 @@ def face_front():
     for i in range(3):
         tacho = ultra_motor.get_tacho()
         if tacho.rotation_count < 0:
-            ultra_motor.turn(75, abs(tacho.rotation_count))
+            ultra_motor.turn(70, abs(tacho.rotation_count))
         else:
-            ultra_motor.turn(-75, tacho.rotation_count)
+            ultra_motor.turn(-70, tacho.rotation_count)
 
 # Function face_back makes the ultra_sensor face backward.
 def face_back():
@@ -102,7 +102,7 @@ def face_back():
 # It the robot fail to find the obstacle and touch sensor is pressed,
 # robot stops.
 def move_forward():
-    global ultra_sensor, touch_sensor
+    global ultra_motor, ultra_sensor, touch_sensor
     both_motor = SynchronizedMotors(left_motor, right_motor, 0)
     face_front()
     both_motor.run()
@@ -119,7 +119,7 @@ def move_forward():
 # Function move_backward makes the robot move back straight and stops
 # when there's obstacle in behind of robot in 100 cm.
 def move_backward():
-    global ultra_sensor
+    global ultra_motor, ultra_sensor
     both_motor = SynchronizedMotors(left_motor, right_motor, 0)
     face_back()
     both_motor.run(-100)
@@ -130,38 +130,28 @@ def move_backward():
             break
 
 # Function turn_robot turns the robot x degrees clockwise.
-def turn_robot(x, revolution):
-    global left_motor, right_motor
-    both_motor = SynchronizedMotors(left_motor, right_motor, 127)
+def turn_robot(x):
+    global left_motor, right_motor, revolution
+    # both_motor = SynchronizedMotors(left_motor, right_motor, 127)
     
     x = x % 360
     if x <= 180:
-        both_motor = SynchronizedMotors(left_motor, right_motor, 127)
-        y = x * revolution
-        left_motor.reset_position(False)
-        both_motor.run()
-        #left_motor.run()
-        while True:
-            tacho = left_motor.get_tacho()
-            if tacho.rotation_count > y:
-                both_motor.brake()
-                #left_motor.brake()
-                break
-
-    if x > 180:
-        both_motor = SynchronizedMotors(right_motor, left_motor, 127)
-        x = 360 - x
+        # both_motor = SynchronizedMotors(left_motor, right_motor, 127)
         y = x * revolution
         right_motor.reset_position(False)
-        both_motor.run()
-        #right_motor.run()
-        while True:
-            tacho = right_motor.get_tacho()
-            if tacho.rotation_count > y:
-                both_motor.brake()
-                #right_motor.brake()
-                break
+        #both_motor.run()
+        #left_motor.run()
+        right_motor.turn(75, y)
 
+    if x > 180:
+        #both_motor = SynchronizedMotors(right_motor, left_motor, 127)
+        x = 360 - x
+        y = x * revolution
+        left_motor.reset_position(False)
+        #both_motor.run()
+        #right_motor.run()
+        left_motor.turn(75, y)
+        
 # Function get_revolution computes the revolution of the robot.
 def get_revolution():    
     dist = float(raw_input("Distances between two wheels: "))
@@ -170,3 +160,5 @@ def get_revolution():
     y = 2 * pi * dist * 0.25
     revolution = y / x
     return revolution
+
+revolution = get_revolution()
