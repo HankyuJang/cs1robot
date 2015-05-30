@@ -1,4 +1,4 @@
-** Sensors **
+*** Sensors ***
 
 Touch Sensor
 -is_pressed( ) : 눌리면 return True, 안눌리면 return False
@@ -19,7 +19,7 @@ Hitech Compass Sensor
 -get_relative_heading(self, target = 0): parameter -> degree of target (default value = 0)
 get_heading()함수의 return value와 target value의 차이를 return해준다.
 
-** Active **
+*** Active ***
 Module : motor
 -get_tacho(self) : 
 return the tachometer count
@@ -45,7 +45,40 @@ power is a value between -127 and 128 (greater than 64 is recommended).
 Tacho_units is the number of degrees to turn the motor. (values smaller than 50 are not recommended)
 Brake is whether or not to hold the motor after the function exits.
 
+*** Cs1robot module methods ***
+-face_north(): 
+using the hitech compass sensor, the robot faces north
 
+-front_is_clear():
+ Returns True if there is nothing in front of the robot using ultrasonic sensor
+ Otherwise, return False (near 50cm)
 
+-right_is_clear():
+ The ultrasonic sensor faces right side and detect if there is any object in the right side 
+ Returns True if there is nothing in the right side (near 50cm)
+ Otherwise, return False
 
+-left_is_clear():
+ The ultrasonic sensor faces left side and detect if there is any object in the left side 
+ Returns True if there is nothing in the left side (near 50cm)
+Otherwise, return False
 
+-move_forward():
+ The ultrasonic sensor faces forward at first and go straight until the distance between the robot and any obstacle becomes 50cm.
+ If the touch sensor is pressed, the collision occurred and the robot stops immediately.
+
+-face_front():
+ The direction of ultrasonic sensor is changed to the front side
+
+-face_back():
+ The direction of ultrasonic sensor is changed to the back side.
+ 
+-move_backward():
+ The ultrasonic sensor faces backward at first when this function is called. The, the robot goes backward until the distance between the robot and any obstacle becomes 50cm.
+
+-turn_robot(x, revolution):
+ The robot turns x degrees clockwise then stop.
+
+-get_revolution():
+ Function computes the revolution of the robot.
+ Function gets input from the user about distance between two wheels and radius of wheel. Then, compute the revolution.
