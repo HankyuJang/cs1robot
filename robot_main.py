@@ -40,16 +40,7 @@ def front_is_clear():
 # Otherwise it returns False.
 def right_is_clear():
     global ultra_motor, ultra_sensor
-    # The robot often fail to turn exactly the specified amount of degrees.
-    # Therefore I made robot do this process three times.
-    for i in range(3):
-        tacho = ultra_motor.get_tacho()
-        if tacho.rotation_count < 0:
-            ultra_motor.turn(70, abs(tacho.rotation_count) + 90)
-        elif tacho.rotation_count < 90:
-            ultra_motor.turn(70, 90 - tacho.rotation_count)
-        else:
-            ultra_motor.turn(-70, tacho.rotation_count - 90)    
+    face_right()  
     
     if ultra_sensor.get_distance() > 50:
         return True
@@ -61,39 +52,61 @@ def right_is_clear():
 # Otherwise it returns False.
 def left_is_clear():
     global ultra_motor, ultra_sensor
-    # The robot often fail to turn exactly the specified amount of degrees.
-    # Therefore I made robot do this process three times.
-    for i in range(3):
-        tacho = ultra_motor.get_tacho()
-        if tacho.rotation_count < -90:
-            ultra_motor.turn(70, -90 - tacho.rotation_count)
-        else:
-            ultra_motor.turn(-70, tacho.rotation_count + 90)
+    face_left()
 
     if ultra_sensor.get_distance() > 50:
         return True
     else:
         return False
 
+# Function face_left makes the ultra_sensor face left.
+def face_left():
+    global ultra_motor, ultra_sensor
+    face_ultra(-90)
+
 # Function face_front makes the ultra_sensor face forward.
 def face_front():
     global ultra_motor, ultra_sensor
-    for i in range(3):
-        tacho = ultra_motor.get_tacho()
-        if tacho.rotation_count < 0:
-            ultra_motor.turn(70, abs(tacho.rotation_count))
-        else:
-            ultra_motor.turn(-70, tacho.rotation_count)
+    face_ultra(0)
+
+# Function face_right makes the ultra_sensor face right.
+def face_right():
+    global ultra_motor, ultra_sensor
+    face_ultra(90)
 
 # Function face_back makes the ultra_sensor face backward.
 def face_back():
     global ultra_motor, ultra_sensor
-    for i in range(3):
-        tacho = ultra_motor.get_tacho()
-        if tacho.rotation_count > 180:
-            ultra_motor.turn(-75, tacho.rotation_count - 180)
-        else:
-            ultra_motor.turn(75, 180 - tacho.rotation_count)
+    face_ultra(180)
+
+# Function face_ultra makes the ultra_sensor to x degrees.
+# It'll allow error of -5 degree to +5 degree.
+# x = 0     : front
+# x = -90   : left
+# x = 90    : right
+# x = 180   : back
+def face_ultra(x):
+    global ultra_motor, ultra_sensor
+    ultra_tacho = ultra_motor.get_tacho()
+    
+    while True:
+        if (x - 5) < ultra_tacho.rotation_count < (x + 5):
+            break
+        ultra_motor.run(60)
+        while True:
+            ultra_tacho = ultra_motor.get_tacho()
+            if ultra_tacho.rotation_count >= x:
+                ultra_motor.brake()
+                break
+                
+        if (x - 5) < ultra_tacho.rotation_count < (x + 5):
+            break
+        ultra_motor.run(-60)
+        while True:
+            ultra_tacho = ultra_motor.get_tacho()
+            if ultra_tacho.rotation_count <= x:
+                ultra_motor.brake()
+                break
 
 # Function move_forward makes the robot move straight and stops
 # when there's obstacle in front of robot in 50 cm.
@@ -198,12 +211,15 @@ def get_revolution():
     revolution = y / x
     return revolution
 
+# Function turn_left makes the robot turn left.
 def turn_left():
     global left_motor, right_motor, revolution 
     turn_robot(270)
 
+# Function turn_right makes the robot turn right.
 def turn_right():
     global left_motor, right_motor, revolution 
     turn_robot(90)
 
 revolution = get_revolution()
+ultra_motor.reset_position(False)
