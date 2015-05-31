@@ -19,9 +19,9 @@ ultra_sensor    = Ultrasonic(brick, PORT_4, True)
 
 # Function face_north makes the robot face north.
 def face_north():
-    global compass_sensor, revolution
+    global compass_sensor, left_motor, right_motor, revolution
     degree = compass_sensor.get_heading()
-    turn_robot(360 - degree, revolution)
+    turn_robot(360 - degree)
 
 # Function front_is_clear turns the ultra_motor so that ultra_sensor is
 # facing forward. Then it returns True if there's nothing near 50 cm.
@@ -49,9 +49,7 @@ def right_is_clear():
         elif tacho.rotation_count < 90:
             ultra_motor.turn(70, 90 - tacho.rotation_count)
         else:
-            ultra_motor.turn(-70, tacho.rotation_count - 90)
-
-    
+            ultra_motor.turn(-70, tacho.rotation_count - 90)    
     
     if ultra_sensor.get_distance() > 50:
         return True
@@ -131,34 +129,81 @@ def move_backward():
 
 # Function turn_robot turns the robot x degrees clockwise.
 def turn_robot(x):
-    global left_motor, right_motor, revolution
-    # both_motor = SynchronizedMotors(left_motor, right_motor, 127)
-    
+    global left_motor, right_motor, revolution    
     x = x % 360
     if x <= 180:
-        # both_motor = SynchronizedMotors(left_motor, right_motor, 127)
-        y = x * revolution
-        right_motor.reset_position(False)
-        #both_motor.run()
-        #left_motor.run()
-        right_motor.turn(75, y)
 
+        y = x * revolution        
+        right_motor.reset_position(False)
+        right_tacho = right_motor.get_tacho()
+        print right_tacho
+        print "right_motor must rotate", y, "degrees"
+
+        while True:
+            if abs(right_tacho.rotation_count - y) < 20:
+                break
+            right_motor.run(70)
+            while True:
+                right_tacho = right_motor.get_tacho()
+                print right_tacho.rotation_count
+                if right_tacho.rotation_count >= y:
+                    right_motor.brake()
+                    break
+
+            if abs(right_tacho.rotation_count - y) < 20:
+                break
+            right_motor.run(-70)
+            while True:
+                right_tacho = right_motor.get_tacho()
+                print right_tacho.rotation_count
+                if right_tacho.rotation_count <= y:
+                    right_motor.brake()
+                    break
+        
     if x > 180:
-        #both_motor = SynchronizedMotors(right_motor, left_motor, 127)
         x = 360 - x
         y = x * revolution
         left_motor.reset_position(False)
-        #both_motor.run()
-        #right_motor.run()
-        left_motor.turn(75, y)
-        
+        left_tacho = left_motor.get_tacho()
+        print left_tacho
+        print "left_motor must rotate", y, "degrees"
+
+        while True:
+            if abs(left_tacho.rotation_count - y) < 20:
+                break
+            left_motor.run(70)
+            while True:
+                left_tacho = left_motor.get_tacho()
+                print left_tacho.rotation_count
+                if left_tacho.rotation_count >= y:
+                    left_motor.brake()
+                    break
+                
+            if abs(left_tacho.rotation_count - y) < 20:
+                break
+            left_motor.run(-70)
+            while True:
+                left_tacho = left_motor.get_tacho()
+                print left_tacho.rotation_count
+                if left_tacho.rotation_count <= y:
+                    left_motor.brake()
+                    break
+
 # Function get_revolution computes the revolution of the robot.
 def get_revolution():    
     dist = float(raw_input("Distances between two wheels: "))
     radius = float(raw_input("Radius of wheel: "))
     x = 2 * pi * radius
-    y = 2 * pi * dist * 0.25
+    y = 2 * pi * dist
     revolution = y / x
     return revolution
+
+def turn_left():
+    global left_motor, right_motor, revolution 
+    turn_robot(270)
+
+def turn_right():
+    global left_motor, right_motor, revolution 
+    turn_robot(90)
 
 revolution = get_revolution()
