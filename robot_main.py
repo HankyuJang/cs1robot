@@ -14,7 +14,6 @@ right_motor = Motor(brick, PORT_C)
 
 touch_sensor    = Touch(brick, PORT_1)
 compass_sensor  = Compass(brick, PORT_2, True)
-#color_sensor    = Color20(brick, PORT_3)
 ultra_sensor    = Ultrasonic(brick, PORT_4, True)
 
 # Function face_north makes the robot face north.
