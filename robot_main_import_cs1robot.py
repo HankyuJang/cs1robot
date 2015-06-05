@@ -8,8 +8,17 @@ left_motor  = Motor(brick, PORT_B)
 right_motor = Motor(brick, PORT_C)
 
 touch_sensor    = Touch(brick, PORT_1)
-compass_sensor  = Compass(brick, PORT_2, True)
-ultra_sensor    = Ultrasonic(brick, PORT_4, True)
+compass_sensor  = Compass(brick, PORT_2)
+sound_sensor    = Sound(brick, PORT_3)
+ultra_sensor    = Ultrasonic(brick, PORT_4)
 
-front_is_clear()
+
+
+# ultra_motor.reset_position(False)
+
+motors = (ultra_motor, left_motor, right_motor)
+sensors = (touch_sensor, compass_sensor, sound_sensor, ultra_sensor)
+hubo = Robot(motors, sensors)
+
+# front_is_clear()
 # will this work?
