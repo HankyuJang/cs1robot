@@ -1,3 +1,13 @@
+#
+# cs1robot.py
+#
+# Environment for moving a robot brick
+# for learning to program in Python
+#
+# Project for Programming1 course in Handong Global University.
+#
+# 2015/06/12 Minwoo Kim, Hankyu Jang, Jisoo Min and Sooryeon Lee.
+#
 import nxt
 import nxt.bluesock
 from nxt.motor import *
@@ -5,6 +15,7 @@ from nxt.sensor.generic import *
 from nxt.sensor.hitechnic import  *
 from math import pi
 
+# Robot class is initialized with motors and sensors.
 class Robot(object):
     def __init__(self, ultra_left_right_motor, touch_compass_sound_ultra_sensor):
         self.ultra_motor, self.left_motor, self.right_motor = ultra_left_right_motor        
